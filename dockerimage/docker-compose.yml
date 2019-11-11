@@ -1,0 +1,27 @@
+version: "3"
+services:
+  fluentd:
+    build: ./fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    links:
+      - "elasticsearch"
+    ports:
+      - "9880:9880"
+
+  elasticsearch:
+    image: elasticsearch:7.4.1
+    container_name: elasticsearch
+    environment:
+      - "discovery.type=single-node"
+    expose:
+      - "9200"
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:7.4.1
+    links:
+      - "elasticsearch"
+    ports:
+      - "5601:5601"
