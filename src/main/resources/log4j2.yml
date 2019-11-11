@@ -1,0 +1,46 @@
+Configuration:
+  status: trace
+  Appenders:
+    Console:
+      name: console
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "%d{HHmmss.SSS}|%-5p|%-30t|%-20c{36}|%m%n"
+    Http:
+      name: http_test
+      url: http://localhost:9880/efktest.log
+      connectTimeoutMillis: 5000
+      readTimeoutMillis: 10000
+      property:
+        - name: Content-type
+          value: application/json
+      JsonLayout:
+        compact: true
+        eventEol: true
+    Async:
+      name: async_http
+      AppenderRef:
+        - ref: http_test
+      blocking: false
+      bufferSize: 262144
+    RollingFile:
+      - name: other_all
+        fileName: ./logs/efktest.log
+        filePattern: "./logs/efktest.%d{yyyy-MM-dd}.%i.log"
+        PatternLayout:
+          pattern: "%d{HHmmss.SSS}|%-5p|%-30t|%-20c{36}|%m%n"
+        Policies:
+          TimeBasedTriggeringPolicy:
+            modulate: true
+            interval: 1
+          SizeBasedTriggeringPolicy:
+            size: 300MB
+        DefaultRolloverStrategy:
+          max: 2
+  Loggers:
+    Root:
+      level: INFO
+      AppenderRef:
+        - ref: other_all
+        - ref: async_http
+#        - ref: console
